@@ -107,8 +107,6 @@
         </div>
         <div class="buttons" role="group" aria-label="TelePrompter Controls">
           <button class="button small icon-tablet remote" aria-label="Remote Control" title="Remote Control" data-ga data-category="Nav" data-action="Control" data-label="Remote"></button>
-          <button class="button small icon-file-text-alt load-script" aria-label="Cargar guion (PDF, DOCX, TXT)" title="Cargar guion (PDF, DOCX, TXT)"></button>
-          <input type="file" id="script-file-input" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown" style="display:none" aria-hidden="true">
           <button class="button small icon-eye-close dim-controls" aria-label="Dim While Reading" title="Dim While Reading" data-ga data-category="Nav" data-action="Control" data-label="Dim"></button>
           <button class="button small icon-undo reset" aria-label="Reset TelePrompter" title="Reset TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Reset"></button>
           <button class="button small icon-text-width flip-x" aria-label="Flip Text Horizontally" title="Flip Text Horizontally" data-ga data-category="Nav" data-action="Control" data-label="FlipX"></button>
@@ -117,6 +115,12 @@
         </div>
         <div id="load-status" class="load-status" role="status" aria-live="polite"></div>
       </nav>
+      <!-- BOTON CARGAR FIJO: posicion fixed, imposible no verlo -->
+      <button id="load-script-btn" class="load-script-btn" aria-label="Cargar guion (PDF, DOCX, TXT)">
+        <i class="icon-file-text-alt"></i>
+        <span class="load-script-label">Cargar guion</span>
+      </button>
+      <input type="file" id="script-file-input" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown" style="display:none" aria-hidden="true">
     </header>
     <article>
       <div class="overlay">
@@ -196,7 +200,7 @@
        */
       (function() {
         var fileInput = document.getElementById('script-file-input');
-        var loadBtn = document.querySelector('.load-script');
+        var loadBtn = document.getElementById('load-script-btn');
         var teleprompter = document.getElementById('teleprompter');
         var statusEl = document.getElementById('load-status');
 

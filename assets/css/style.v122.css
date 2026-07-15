@@ -641,64 +641,129 @@ a.sponsor-project {
 
 /* === KazeCode TelePrompter · Cargador de guiones === */
 
-.load-script {
-  position: relative;
-  transition: color 0.15s ease, background-color 0.15s ease;
-  color: #4caf50;
-  border-radius: 6px;
-  margin: 2px !important;
-  padding-top: 4px !important;
-  line-height: 44px !important;
+.load-script-btn {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 9999 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  width: auto !important;
+  height: auto !important;
+  padding: 14px 22px !important;
+  margin: 0 !important;
+  border-radius: 28px !important;
+  background: linear-gradient(135deg, #4caf50 0%, #43a047 100%) !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  border: none !important;
+  outline: none !important;
+  vertical-align: middle !important;
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  animation: loadBtnPulse 2.5s ease-in-out infinite !important;
 }
 
-.load-script:hover {
-  color: #66bb6a;
-  background-color: rgba(76, 175, 80, 0.15);
+@keyframes loadBtnPulse {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(76, 175, 80, 0.75), 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 8px rgba(76, 175, 80, 0.15);
+  }
 }
 
-.load-script::after {
-  content: "CARGAR";
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: #4caf50;
-  pointer-events: none;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  line-height: 1;
+.load-script-btn:hover {
+  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%) !important;
+  box-shadow: 0 8px 28px rgba(76, 175, 80, 0.65), 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-2px) scale(1.03);
+  animation: none !important;
+}
+
+.load-script-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.5) !important;
+}
+
+.load-script-btn i {
+  font-size: 20px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.load-script-btn .load-script-label {
+  display: inline !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  letter-spacing: 0.3px !important;
+  text-transform: uppercase !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
 }
 
 @media (max-width: 768px) {
-  .load-script::after {
-    font-size: 8px;
-    bottom: 8px;
+  .load-script-btn {
+    bottom: 16px !important;
+    right: 16px !important;
+    padding: 11px 16px !important;
+    font-size: 13px !important;
+  }
+  .load-script-btn i {
+    font-size: 17px !important;
+  }
+  .load-script-btn .load-script-label {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .load-script-btn .load-script-label {
+    display: none !important;
+  }
+  .load-script-btn {
+    padding: 13px !important;
+    border-radius: 50% !important;
+    width: 54px !important;
+    height: 54px !important;
   }
 }
 
 .load-status {
   position: fixed;
-  top: 80px;
-  right: 20px;
-  max-width: 320px;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-size: 13px;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  padding: 12px 22px;
+  border-radius: 24px;
+  font-size: 14px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   line-height: 1.4;
-  z-index: 9999;
+  z-index: 9998;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  font-weight: 600;
 }
 
 .load-status:not(:empty) {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%);
 }
 
 .load-status--loading {
@@ -717,18 +782,8 @@ a.sponsor-project {
 }
 
 .teleprompter.drag-over {
-  outline: 3px dashed #4297d7;
+  outline: 3px dashed #4caf50;
   outline-offset: -10px;
-  background-color: rgba(66, 151, 215, 0.08);
+  background-color: rgba(76, 175, 80, 0.08);
   transition: outline 0.15s ease, background-color 0.15s ease;
-}
-
-@media (max-width: 768px) {
-  .load-status {
-    top: 70px;
-    right: 10px;
-    left: 10px;
-    max-width: none;
-    font-size: 12px;
-  }
 }
