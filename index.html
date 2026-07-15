@@ -107,12 +107,15 @@
         </div>
         <div class="buttons" role="group" aria-label="TelePrompter Controls">
           <button class="button small icon-tablet remote" aria-label="Remote Control" title="Remote Control" data-ga data-category="Nav" data-action="Control" data-label="Remote"></button>
+          <button class="button small icon-file-text-alt load-script" aria-label="Cargar guion (PDF, DOCX, TXT)" title="Cargar guion (PDF, DOCX, TXT)" data-category="Nav" data-action="Control" data-label="LoadScript"></button>
+          <input type="file" id="script-file-input" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown" style="display:none" aria-hidden="true">
           <button class="button small icon-eye-close dim-controls" aria-label="Dim While Reading" title="Dim While Reading" data-ga data-category="Nav" data-action="Control" data-label="Dim"></button>
           <button class="button small icon-undo reset" aria-label="Reset TelePrompter" title="Reset TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Reset"></button>
           <button class="button small icon-text-width flip-x" aria-label="Flip Text Horizontally" title="Flip Text Horizontally" data-ga data-category="Nav" data-action="Control" data-label="FlipX"></button>
           <button class="button small icon-text-height flip-y" aria-label="Flip Text Vertically" title="Flip Text Vertically" data-ga data-category="Nav" data-action="Control" data-label="FlipY"></button>
           <button class="button icon-play play active" aria-label="Play / Pause" title="Play / Pause TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Play"></button>
         </div>
+        <div id="load-status" class="load-status" role="status" aria-live="polite"></div>
       </nav>
     </header>
     <article>
@@ -174,6 +177,201 @@
     <script async src="assets/js/plugins.v122.js"></script>
     <script src="assets/js/script.v122.js"></script>
     <!-- KazeCode fork: sin tracking de terceros. Privacidad por default. -->
+
+    <!-- PDF.js (Mozilla) - extraccion de texto PDF en el navegador -->
+    <script src="assets/lib/pdf.min.js"></script>
+    <script>
+      // pdf.js requiere que el worker se configure manualmente
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/lib/pdf.worker.min.js';
+      }
+    </script>
+    <!-- mammoth.js - extraccion de texto DOCX en el navegador -->
+    <script src="assets/lib/mammoth.browser.min.js"></script>
+
+    <script>
+      /**
+       * KazeCode TelePrompter · Cargador de guiones
+       * Procesa PDF/DOCX/TXT/MD en el navegador. CERO upload a servidor.
+       */
+      (function() {
+        var fileInput = document.getElementById('script-file-input');
+        var loadBtn = document.querySelector('.load-script');
+        var teleprompter = document.getElementById('teleprompter');
+        var statusEl = document.getElementById('load-status');
+
+        function setStatus(msg, kind) {
+          if (!statusEl) return;
+          statusEl.textContent = msg || '';
+          statusEl.className = 'load-status' + (kind ? ' load-status--' + kind : '');
+          if (msg && kind !== 'error') {
+            setTimeout(function() {
+              if (statusEl.textContent === msg) statusEl.textContent = '';
+            }, 4000);
+          }
+        }
+
+        function setTeleprompterText(text) {
+          if (!teleprompter) return;
+          // Convertir saltos de linea en <br> para preservar formato basico
+          var html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\r\n|\r|\n/g, '<br>')
+            .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+          // Doble salto = parrafo nuevo
+          html = html.replace(/(<br>\s*){2,}/g, '<br><br>');
+          teleprompter.innerHTML = html;
+          // Trigger guardado automatico que el sitio ya tiene
+          try {
+            teleprompter.dispatchEvent(new Event('input', { bubbles: true }));
+            teleprompter.dispatchEvent(new Event('keyup', { bubbles: true }));
+          } catch (e) { /* noop */ }
+        }
+
+        function extractFromPDF(file) {
+          return new Promise(function(resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+              var data = ev.target.result;
+              if (typeof pdfjsLib === 'undefined') {
+                reject(new Error('pdf.js no cargo. Recarga la pagina.'));
+                return;
+              }
+              pdfjsLib.getDocument({ data: data }).promise.then(function(pdf) {
+                var totalPages = pdf.numPages;
+                var pages = [];
+                var processed = 0;
+                for (var i = 1; i <= totalPages; i++) {
+                  pdf.getPage(i).then(function(page) {
+                    return page.getTextContent();
+                  }).then(function(content) {
+                    var pageText = content.items
+                      .map(function(item) { return item.str; })
+                      .join(' ');
+                    pages.push(pageText);
+                    processed++;
+                    setStatus('Procesando PDF... ' + processed + '/' + totalPages + ' paginas');
+                    if (processed === totalPages) {
+                      resolve({
+                        text: pages.join('\n\n'),
+                        pages: totalPages
+                      });
+                    }
+                  }).catch(reject);
+                }
+              }).catch(reject);
+            };
+            reader.onerror = function() { reject(new Error('No se pudo leer el archivo')); };
+            reader.readAsArrayBuffer(file);
+          });
+        }
+
+        function extractFromDOCX(file) {
+          return new Promise(function(resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+              if (typeof mammoth === 'undefined') {
+                reject(new Error('mammoth.js no cargo. Recarga la pagina.'));
+                return;
+              }
+              mammoth.extractRawText({ arrayBuffer: ev.target.result })
+                .then(function(result) {
+                  resolve({ text: result.value, pages: 1 });
+                })
+                .catch(reject);
+            };
+            reader.onerror = function() { reject(new Error('No se pudo leer el archivo')); };
+            reader.readAsArrayBuffer(file);
+          });
+        }
+
+        function extractFromText(file) {
+          return new Promise(function(resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function(ev) { resolve({ text: ev.target.result, pages: 1 }); };
+            reader.onerror = function() { reject(new Error('No se pudo leer el archivo')); };
+            reader.readAsText(file);
+          });
+        }
+
+        function processFile(file) {
+          if (!file) return;
+          var name = file.name || 'archivo';
+          var ext = (name.split('.').pop() || '').toLowerCase();
+
+          setStatus('Procesando ' + name + '...', 'loading');
+
+          var promise;
+          if (ext === 'pdf' || file.type === 'application/pdf') {
+            promise = extractFromPDF(file);
+          } else if (ext === 'docx' || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            promise = extractFromDOCX(file);
+          } else if (ext === 'txt' || ext === 'md' || file.type.startsWith('text/')) {
+            promise = extractFromText(file);
+          } else {
+            setStatus('Formato no soportado. Usa PDF, DOCX, TXT o MD.', 'error');
+            return;
+          }
+
+          promise.then(function(result) {
+            var charCount = result.text.length;
+            if (charCount < 5) {
+              setStatus('El archivo no contiene texto extraible. Esta escaneado o protegido.', 'error');
+              return;
+            }
+            setTeleprompterText(result.text);
+            var wordCount = result.text.trim().split(/\s+/).length;
+            var pageInfo = result.pages > 1 ? ' (' + result.pages + ' paginas)' : '';
+            setStatus('Guion cargado: ' + wordCount + ' palabras' + pageInfo, 'success');
+          }).catch(function(err) {
+            console.error('Error procesando archivo:', err);
+            var msg = err && err.message ? err.message : 'Error desconocido';
+            if (/password/i.test(msg)) {
+              msg = 'PDF protegido con contrasena. Quita la proteccion y vuelve a intentar.';
+            } else if (/InvalidPDF/i.test(msg)) {
+              msg = 'PDF invalido o corrupto.';
+            }
+            setStatus('Error: ' + msg, 'error');
+          });
+        }
+
+        if (loadBtn && fileInput) {
+          loadBtn.addEventListener('click', function() {
+            fileInput.click();
+          });
+          fileInput.addEventListener('change', function(ev) {
+            var file = ev.target.files && ev.target.files[0];
+            processFile(file);
+            // Resetear el input para permitir cargar el mismo archivo de nuevo
+            ev.target.value = '';
+          });
+        }
+
+        // Drag & drop sobre el teleprompter
+        if (teleprompter) {
+          ['dragenter', 'dragover'].forEach(function(evt) {
+            teleprompter.addEventListener(evt, function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              teleprompter.classList.add('drag-over');
+            });
+          });
+          ['dragleave', 'drop'].forEach(function(evt) {
+            teleprompter.addEventListener(evt, function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              teleprompter.classList.remove('drag-over');
+            });
+          });
+          teleprompter.addEventListener('drop', function(e) {
+            var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+            processFile(file);
+          });
+        }
+      })();
+    </script>
 
     <script>
       // Load Service Worker for PWA

@@ -9,3 +9,6 @@ Thumbs.db
 *.log
 node_modules
 !.nvmrc
+
+# Netlify CLI local state
+.netlify/
