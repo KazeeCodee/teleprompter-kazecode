@@ -643,11 +643,39 @@ a.sponsor-project {
 
 .load-script {
   position: relative;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  color: #4caf50;
+  border-radius: 6px;
+  margin: 2px !important;
+  padding-top: 4px !important;
+  line-height: 44px !important;
 }
 
 .load-script:hover {
-  color: #4297d7;
+  color: #66bb6a;
+  background-color: rgba(76, 175, 80, 0.15);
+}
+
+.load-script::after {
+  content: "CARGAR";
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #4caf50;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .load-script::after {
+    font-size: 8px;
+    bottom: 8px;
+  }
 }
 
 .load-status {
