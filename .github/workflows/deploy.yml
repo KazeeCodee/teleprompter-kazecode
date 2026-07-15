@@ -1,0 +1,42 @@
+# GitHub Actions: deploy a Netlify en cada push a main
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Deploy to Netlify (production)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          netlify deploy --prod --dir=. --message "GitHub Actions deploy: ${{ github.event.head_commit.message }}"
+          echo ""
+          echo "=== VERIFICACION POST-DEPLOY ==="
+          sleep 5
+          # Hash del CSS remoto esperado
+          REMOTE_HASH=$(curl -s "https://incandescent-longma-dd634c.netlify.app/assets/css/kazecode-modern.css?v=$(date +%s)" | md5sum | cut -d' ' -f1)
+          LOCAL_HASH=$(md5sum assets/css/kazecode-modern.css | cut -d' ' -f1)
+          echo "Local hash:  $LOCAL_HASH"
+          echo "Remote hash: $REMOTE_HASH"
+          if [ "$LOCAL_HASH" = "$REMOTE_HASH" ]; then
+            echo "VERIFIED: deploy llego a produccion"
+          else
+            echo "MISMATCH: cache de Netlify o deploy fallo"
+            exit 1
+          fi
