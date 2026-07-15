@@ -4,49 +4,37 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <title>TelePrompter</title>
+    <title>TelePrompter · by KazeCode</title>
 
     <!-- Mobile Specific Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="TelePrompter" />
+    <meta name="apple-mobile-web-app-title" content="TelePrompter · KazeCode" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#141414" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover" />
 
     <!-- Default Meta Tags -->
-    <meta name="description" content="Browser-based TelePrompter with Remote Control">
-    <meta name="keywords" content="TelePrompter, Remote, Browser, Open Source">
+    <meta name="description" content="TelePrompter web gratuito para estudios de grabación, podcasters y creadores. By KazeCode.">
+    <meta name="keywords" content="teleprompter, telepronter, kazecode, estudio grabacion, podcast, locucion, guion">
     <meta name="cache-control" content="public">
-    <meta name="company" content="Fatal Encounters">
+    <meta name="company" content="KazeCode">
     <meta name="googlebot" content="index,follow">
     <meta name="robots" content="noodp,noydir">
     <meta name="robots" content="index,follow">
-    <meta name="author" content="Peter Schmalfeldt">
+    <meta name="author" content="KazeCode · fork de Manifest Interactive (MIT/GPL)">
 
     <!-- Twitter META Info -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:site" content="@mrmidi">
-    <meta property="twitter:title" content="TelePrompter">
-    <meta property="twitter:description" content="Browser-based TelePrompter with Remote Control">
-    <meta property="twitter:creator" content="@mrmidi">
-    <meta property="twitter:image:src" content="https://promptr.tv/assets/img/social-card.png">
-    <meta property="twitter:domain" content="promptr.tv">
+    <meta property="twitter:title" content="TelePrompter · by KazeCode">
+    <meta property="twitter:description" content="TelePrompter web gratuito para estudios de grabación. By KazeCode.">
 
     <!-- Open Graph protocol -->
-    <meta property="og:locale" content="en_US">
+    <meta property="og:locale" content="es_AR">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="TelePrompter">
-    <meta property="og:url" content="https://promptr.tv">
-    <meta property="og:image" content="https://promptr.tv/assets/img/social-card.png">
-    <meta property="og:site_name" content="TelePrompter">
-    <meta property="og:description" content="Browser-based TelePrompter with Remote Control">
-
-    <!-- Dublin Core Metadata -->
-    <meta name="dc:language" content="en_US">
-    <meta name="dc:title" content="TelePrompter">
-    <meta name="dc:source" content="https://promptr.tv">
-    <meta name="dc:description" content="Browser-based TelePrompter with Remote Control">
+    <meta property="og:title" content="TelePrompter · by KazeCode">
+    <meta property="og:site_name" content="TelePrompter · KazeCode">
+    <meta property="og:description" content="TelePrompter web gratuito para estudios de grabación, podcasters y creadores.">
 
     <!-- Manifest -->
     <link rel="manifest" href="manifest.json" />
@@ -54,9 +42,6 @@
     <!-- Icons -->
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" sizes="192x192" href="assets/img/apple/icon-192x192.png" />
-
-    <!-- Canonical -->
-    <link rel="canonical" href="https://promptr.tv" />
 
     <!-- Styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap">
@@ -73,8 +58,8 @@
   </head>
 
   <body id="gui">
-    <a href="https://github.com/manifestinteractive/teleprompter#readme" id="get-help" target="_blank" title="Get Help with TelePrompter" aria-label="Get Help with TelePrompter" data-ga data-category="Nav" data-action="Help" data-label="Get Help">
-      <i class="icon-question-sign"></i>
+    <a href="https://kazecode.com.ar" id="get-help" target="_blank" rel="noopener" title="KazeCode · más herramientas para tu estudio" aria-label="KazeCode · más herramientas" data-category="Nav" data-action="KazeCode" data-label="KazeCode Footer">
+      <span class="kc-mark">KC</span>
     </a>
     <div id="modal">
       <a class="button icon-remove-circle close-modal" href="javascript:void(0)" role="button" aria-label="Close Modal" title="Close Modal" data-ga data-category="Nav" data-action="Modal" data-label="Close Modal"></a>
@@ -82,27 +67,29 @@
       <div class="modal-content">
         <!-- Remote Control -->
         <div id="remote-control-modal">
-          <h1>Remote Control</h1>
-          <p>Access the Following URL from another device:</p>
-          <p class="remote-url">https://promptr.tv/remote</p>
-          <p>Enter this Remote ID:</p>
+          <h1>Control Remoto</h1>
+          <p>Abrí esta misma URL en otro dispositivo (celular, tablet) conectado a la misma red:</p>
+          <p class="remote-url"></p>
+          <p>O usá este Remote ID:</p>
           <p class="remote-id"></p>
           <div id="qr-code"></div>
-          <p>Remote Control QR Code</p>
+          <p>Código QR del Control Remoto</p>
+          <p class="kc-remote-note">Tip: si abrís dos pestañas del mismo navegador, se sincronizan automáticamente sin necesidad de ID.</p>
         </div>
 
         <!-- Software Update -->
         <div id="software-update">
-          <h1>Software Update</h1>
-          <p>Thanks for using <strong>TelePrompter</strong>. We just wanted to let you know that we have updated our site since the last time you visited.</p>
-          <a href="https://github.com/manifestinteractive/teleprompter/releases/latest" target="_blank" rel="nofollow noopener" data-ga data-category="Nav" data-action="Software Update" data-label="See Updates">See Updates</a>
+          <h1>TelePrompter · KazeCode</h1>
+          <p><strong>KazeCode</strong> diseña y construye la tecnología de software que permite a una empresa dejar de improvisar y empezar a escalar de verdad.</p>
+          <p>Esta es una versión KazeCode del TelePrompter de Manifest Interactive, gratis para estudios de grabación, podcasters y creadores de LATAM.</p>
+          <a href="https://kazecode.com.ar" id="kc-update-link" target="_blank" rel="nofollow noopener" data-category="Nav" data-action="KazeCode Update" data-label="Más info">Conocé KazeCode →</a>
         </div>
       </div>
       <div class="modal-overlay"></div>
     </div>
 
     <header>
-      <h1><i class="icon icon-bullhorn"></i> <span class="clock">00:00:00</span></h1>
+      <h1><i class="icon icon-bullhorn"></i> TelePrompter <span class="kc-by">by KazeCode</span> <span class="clock">00:00:00</span></h1>
       <nav>
         <div class="colors" role="group" aria-label="Color Pickers">
           <input type="color" id="text-color" value="#ffffff" aria-label="Text Color">
@@ -134,73 +121,59 @@
         <div class="bottom"></div>
       </div>
       <div class="teleprompter" id="teleprompter" role="textbox" aria-multiline="true" aria-label="TelePrompter Text" contenteditable>
-        Oh, hello there. I did not see you come in. I was too busy reading off this TelePrompter. It does some pretty cool
-        things, for example:
+        Bienvenido a TelePrompter, by KazeCode. Esta es una herramienta web gratuita pensada para estudios de grabación, podcasters y creadores de contenido.
         <br><br>
-        You can edit the text right on the page. It'll even save it for you if you happen to leave the page. That's some
-        smart thinking.
+        <strong>Cómo usar:</strong>
         <br><br>
-        If you're using an iPad, you can add a shortcut to your home screen for full screen awesomeness.
+        Pegá o escribí tu guion directamente en esta área. El texto se guarda automáticamente en tu navegador mientras escribís.
         <br><br>
-        You can also use some handy keyboard shortcuts to speed things up. You can adjust the speed and font size at the
-        top right as well. We're also experimenting with ways to flip the text around for you fancy folks using mirrors.
+        En iPad o tablet, agregá un acceso directo a tu pantalla de inicio para usarlo en pantalla completa.
         <br><br>
-        The keyboard shortcuts are as follows:
+        Ajustá el tamaño de fuente y la velocidad desde los controles arriba a la derecha. Si usás un vidrio reflector, activá el botón de espejado horizontal.
         <br><br>
-        Up: Increases Font Size
+        <strong>Atajos de teclado:</strong>
         <br><br>
-        Down: Decreases Font Size
+        Flecha arriba: aumenta el tamaño de la fuente.
         <br><br>
-        Left: Slows Down Teleprompter
+        Flecha abajo: disminuye el tamaño de la fuente.
         <br><br>
-        Right: Speeds Up Teleprompter
+        Flecha izquierda: hace el teleprompter más lento.
         <br><br>
-        Space: Starts / Stops Teleprompter
+        Flecha derecha: hace el teleprompter más rápido.
         <br><br>
-        Escape: Resets Everything
+        Espacio: inicia o pausa el teleprompter.
         <br><br>
-        Finally, we also made an effort to make sure your text will be easy to read. So if you are pasting text from a
-        Microsoft Word document, we'll do some cleaning up to make the breaks flow more easily.
+        Escape: reinicia todo.
         <br><br>
-        Thanks for stopping by.
+        Si pegás texto desde Word o Google Docs, el teleprompter limpia el formato automáticamente para que se lea fluido.
         <br><br>
-        Love this TelePrompter?
+        ¿Necesitás controlar el teleprompter desde otro dispositivo? Tocá el ícono de tablet en la barra superior y abrí la misma URL en tu celular.
         <br><br>
-        <a href="https://github.com/manifestinteractive/teleprompter#project-support" contenteditable="false" class="sponsor-project" target="_blank" title="Support TelePrompter" aria-label="Support TelePrompter" data-ga data-category="Nav" data-action="Help" data-label="Support TelePrompter">
-          Support Our Work :)
-        </a><br><br>
-        Thanks !!!
+        Hecho con cariño por <a href="https://kazecode.com.ar" contenteditable="false" class="sponsor-project" target="_blank" rel="noopener" title="KazeCode" aria-label="KazeCode">KazeCode</a>.
       </div>
       <i class="icon-play marker" style="display: none"></i>
     </article>
 
     <script>
-      (function(d, s, id) {
-        var js, tjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) { return; }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = (window.location.hostname === 'promptr.tv')
-          ? 'https://promptr.tv/remote/socket.io/socket.io.js'
-          : 'http://' + window.location.hostname + ':3000/socket.io/socket.io.js';
-        tjs.parentNode.insertBefore(js, tjs);
-      }(document, 'script', 'teleprompter-socket'));
+      // KazeCode fork: control remoto vía BroadcastChannel (mismo navegador).
+      // Funciona entre pestañas/dispositivos en la misma sesión sin servidor.
+      // Si el host expone un servidor Socket.IO propio, se puede reactivar cambiando la URL.
+      (function() {
+        try {
+          if ('BroadcastChannel' in window) {
+            window.__KC_REMOTE_CHANNEL__ = new BroadcastChannel('kazecode-teleprompter');
+            console.log('[KazeCode] Control remoto BroadcastChannel activo');
+          } else {
+            console.warn('[KazeCode] BroadcastChannel no soportado, control remoto deshabilitado');
+          }
+        } catch (e) {
+          console.warn('[KazeCode] Error inicializando control remoto', e);
+        }
+      })();
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S1R98WW400"></script>
-
-    <script>
-      window['ga-disable-G-S1R98WW400'] = (window.location.hostname !== 'promptr.tv');
-      window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', 'G-S1R98WW400', {
-        'anonymize_ip': true,
-        'allow_google_signals': false
-      });
-    </script>
-
-    <script src="assets/js/plugins.v122.js"></script>
+    <script async src="assets/js/plugins.v122.js"></script>
     <script src="assets/js/script.v122.js"></script>
+    <!-- KazeCode fork: sin tracking de terceros. Privacidad por default. -->
 
     <script>
       // Load Service Worker for PWA

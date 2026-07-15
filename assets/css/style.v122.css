@@ -582,3 +582,59 @@ a.sponsor-project:hover, a.sponsor-project:focus {
     display: none;
   }
 }
+
+
+/* ============================================================
+   KazeCode fork — branding & non-invasive monetization
+   ============================================================ */
+header h1 .kc-by {
+  color: #888;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+
+a#get-help {
+  background-color: #4297d7;
+  color: #fff !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+a#get-help:hover {
+  background-color: #5aa8e0;
+  transform: scale(1.05);
+}
+
+a#get-help .kc-mark {
+  pointer-events: none;
+}
+
+a.sponsor-project {
+  color: #4297d7 !important;
+  text-decoration: none;
+  border-bottom: 1px dotted #4297d7;
+}
+
+.kc-remote-note {
+  font-size: 12px;
+  color: #888;
+  margin-top: 10px;
+  font-style: italic;
+}
