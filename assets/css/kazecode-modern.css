@@ -81,6 +81,27 @@ header h1 span.clock {
 }
 
 /* ----------------------------------------------------------
+   Header auto-hide durante reproducción (body.playing)
+   - Translate + opacity para animación suave
+   - pointer-events:none evita clicks fantasma en header oculto
+   - FAB Play se mantiene visible (es el control principal)
+   ---------------------------------------------------------- */
+header {
+  transition: transform 0.3s ease, opacity 0.2s ease !important;
+}
+
+body.playing header {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.playing .kazecode-play-fab {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ----------------------------------------------------------
    Nav labels (Font / Speed)
    ---------------------------------------------------------- */
 header nav label {
