@@ -184,6 +184,25 @@ input[type="color"]:hover {
 }
 
 /* ----------------------------------------------------------
+   FontAwesome override — forzar font-family en iconos
+   El header tiene font-family: Inter !important (línea 47) que
+   rompe los glyphs de FontAwesome en los :before de icon-*.
+   Esta regla restaura 'FontAwesome' en los iconos del header.
+   ---------------------------------------------------------- */
+header h1 i.icon-bullhorn,
+header .button[class*="icon-"]::before,
+header .button[class*="icon-"],
+header .load-script-btn,
+header .button.icon-play,
+header .button.icon-tablet,
+header .button.icon-eye-close,
+header .button.icon-undo,
+header .button.icon-text-width,
+header .button.icon-text-height {
+  font-family: 'FontAwesome' !important;
+}
+
+/* ----------------------------------------------------------
    Botón Play — circular cyan prominente
    Se preserva position/size del CSS original, solo se reeskinna
    el fondo/border/sombra del círculo interior vía font-size ratio.
