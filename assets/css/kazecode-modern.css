@@ -383,12 +383,12 @@ header .button.icon-text-height {
    (JS los lee para calcular el scroll).
    ---------------------------------------------------------- */
 article {
-  background-color: var(--kc-bg) !important;
+  background-color: var(--kc-bg);
   font-family: 'Inter', sans-serif !important;
 }
 
 article .teleprompter {
-  background-color: var(--kc-bg) !important;
+  background-color: var(--kc-bg);
 }
 
 article .teleprompter p {
