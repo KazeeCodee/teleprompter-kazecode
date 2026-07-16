@@ -107,20 +107,16 @@
           </label>
         </div>
         <div class="buttons" role="group" aria-label="TelePrompter Controls">
+          <button id="load-script-btn" class="button small load-script-btn icon-file-text-alt" aria-label="Cargar guion (PDF, DOCX, TXT)" title="Cargar guion (PDF, DOCX, TXT)" data-ga data-category="Nav" data-action="Control" data-label="Cargar"></button>
           <button class="button small icon-tablet remote" aria-label="Remote Control" title="Remote Control" data-ga data-category="Nav" data-action="Control" data-label="Remote"></button>
           <button class="button small icon-eye-close dim-controls" aria-label="Dim While Reading" title="Dim While Reading" data-ga data-category="Nav" data-action="Control" data-label="Dim"></button>
           <button class="button small icon-undo reset" aria-label="Reset TelePrompter" title="Reset TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Reset"></button>
           <button class="button small icon-text-width flip-x" aria-label="Flip Text Horizontally" title="Flip Text Horizontally" data-ga data-category="Nav" data-action="Control" data-label="FlipX"></button>
           <button class="button small icon-text-height flip-y" aria-label="Flip Text Vertically" title="Flip Text Vertically" data-ga data-category="Nav" data-action="Control" data-label="FlipY"></button>
-          <button class="button icon-play play active" aria-label="Play / Pause" title="Play / Pause TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Play"></button>
+          <button id="play" class="button icon-play play active" aria-label="Play / Pause" title="Play / Pause TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Play"></button>
         </div>
         <div id="load-status" class="load-status" role="status" aria-live="polite"></div>
       </nav>
-      <!-- BOTON CARGAR FIJO: posicion fixed, imposible no verlo -->
-      <button id="load-script-btn" class="load-script-btn" aria-label="Cargar guion (PDF, DOCX, TXT)">
-        <i class="icon-file-text-alt"></i>
-        <span class="load-script-label">Cargar guion</span>
-      </button>
       <input type="file" id="script-file-input" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown" style="display:none" aria-hidden="true">
     </header>
     <article>
@@ -161,6 +157,54 @@
       </div>
       <i class="icon-play marker" style="display: none"></i>
     </article>
+
+    <!-- KazeCode FAB Play: boton flotante de accion primaria. Sincronizado con #play del header. -->
+    <button id="kazecode-play-fab" class="kazecode-play-fab" aria-label="Play / Pause" title="Play / Pause TelePrompter" type="button">
+      <i class="icon-play" aria-hidden="true"></i>
+    </button>
+
+    <script>
+      // KazeCode · sincroniza el FAB Play con el boton Play del header.
+      // Usa MutationObserver para reflejar cualquier cambio de estado
+      // (click del usuario, click del header, control remoto, etc.).
+      (function() {
+        var fab = document.getElementById('kazecode-play-fab');
+        var headerPlay = document.getElementById('play');
+        if (!fab || !headerPlay) return;
+
+        function syncFab() {
+          var isPlaying = headerPlay.classList.contains('icon-pause');
+          var fabIcon = fab.querySelector('i');
+          if (!fabIcon) return;
+          if (isPlaying) {
+            fab.classList.add('is-playing');
+            fabIcon.classList.remove('icon-play');
+            fabIcon.classList.add('icon-pause');
+          } else {
+            fab.classList.remove('is-playing');
+            fabIcon.classList.remove('icon-pause');
+            fabIcon.classList.add('icon-play');
+          }
+        }
+
+        // Estado inicial (puede arrancar en playing si el JS original lo setea)
+        syncFab();
+
+        // Observar cambios de clase en #play para reflejar en FAB
+        if (typeof MutationObserver !== 'undefined') {
+          var observer = new MutationObserver(syncFab);
+          observer.observe(headerPlay, {
+            attributes: true,
+            attributeFilter: ['class']
+          });
+        }
+
+        // Click en FAB → dispara el handler original del header
+        fab.addEventListener('click', function() {
+          headerPlay.click();
+        });
+      })();
+    </script>
 
     <script>
       // KazeCode fork: control remoto vía BroadcastChannel (mismo navegador).

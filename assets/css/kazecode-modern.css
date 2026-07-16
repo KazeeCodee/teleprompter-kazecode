@@ -224,6 +224,120 @@ input[type="color"]:hover {
 }
 
 /* ----------------------------------------------------------
+   KazeCode · Inversión FAB
+   - load-script-btn: vuelve al header como icono (reset del FAB verde)
+   - kazecode-play-fab: nuevo FAB Play cyan, fijo bottom-right
+   ---------------------------------------------------------- */
+
+/* Reset del viejo FAB verde: load-script-btn ahora vive dentro del header */
+.load-script-btn {
+  position: static !important;
+  bottom: auto !important;
+  right: auto !important;
+  z-index: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  width: 50px !important;
+  height: 64px !important;
+  min-width: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  animation: none !important;
+  outline: none !important;
+  color: var(--kc-text-muted) !important;
+  font-size: 20px !important;
+  font-weight: normal !important;
+  font-family: inherit !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  line-height: 64px !important;
+  text-decoration: none !important;
+  text-align: center !important;
+  cursor: pointer !important;
+}
+
+.load-script-btn:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--kc-text) !important;
+  transform: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.load-script-btn:active {
+  transform: scale(0.92) !important;
+  box-shadow: none !important;
+}
+
+/* FAB Play: boton flotante de accion primaria (Play/Pause) */
+.kazecode-play-fab {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 9999 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, var(--kc-cyan) 0%, var(--kc-cyan-dark) 100%) !important;
+  color: #ffffff !important;
+  font-size: 26px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(6, 182, 212, 0.3) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+  animation: kc-fab-pulse 2.5s ease-in-out infinite !important;
+  font-family: inherit !important;
+  text-decoration: none !important;
+}
+
+.kazecode-play-fab i {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  font-size: inherit !important;
+}
+
+.kazecode-play-fab:hover {
+  background: linear-gradient(135deg, var(--kc-cyan-bright) 0%, var(--kc-cyan) 100%) !important;
+  transform: scale(1.08) !important;
+  animation: none !important;
+  box-shadow: 0 8px 28px rgba(6, 182, 212, 0.7), 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+.kazecode-play-fab:active {
+  transform: scale(0.95) !important;
+  box-shadow: 0 3px 10px rgba(6, 182, 212, 0.5) !important;
+}
+
+.kazecode-play-fab.is-playing {
+  background: linear-gradient(135deg, var(--kc-cyan-dark) 0%, var(--kc-cyan) 100%) !important;
+  animation: none !important;
+}
+
+@keyframes kc-fab-pulse {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(6, 182, 212, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(6, 182, 212, 0.75), 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 10px rgba(6, 182, 212, 0.12);
+  }
+}
+
+/* ----------------------------------------------------------
    Article / .teleprompter — fondo oscuro
    NO tocamos font-size/padding/max-width/line-height/transform
    (JS los lee para calcular el scroll).
@@ -471,6 +585,25 @@ a.sponsor-project:hover {
     font-size: 14px !important;
     z-index: 101 !important;
   }
+
+  /* FAB Play en mobile: más chico y más cerca del borde */
+  .kazecode-play-fab {
+    bottom: 16px !important;
+    right: 16px !important;
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
+    font-size: 22px !important;
+  }
+
+  /* Cargar en header: dimensiones mobile consistentes con .button.small */
+  .load-script-btn {
+    width: 22px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 12px !important;
+  }
 }
 
 /* --- Small phones: ≤400px --- */
@@ -520,6 +653,25 @@ a.sponsor-project:hover {
     font-size: 12px !important;
     top: 16px !important;
   }
+
+  /* FAB Play en small phones */
+  .kazecode-play-fab {
+    bottom: 14px !important;
+    right: 14px !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    font-size: 20px !important;
+  }
+
+  /* Cargar en header small phones */
+  .load-script-btn {
+    width: 20px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    font-size: 11px !important;
+  }
 }
 
 /* --- Ultra small phones: ≤360px --- */
@@ -565,5 +717,24 @@ a.sponsor-project:hover {
     font-size: 11px !important;
     top: 17px !important;
     left: 6px !important;
+  }
+
+  /* FAB Play en ultra small phones */
+  .kazecode-play-fab {
+    bottom: 12px !important;
+    right: 12px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 19px !important;
+  }
+
+  /* Cargar en header ultra small phones */
+  .load-script-btn {
+    width: 18px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    font-size: 10px !important;
   }
 }
