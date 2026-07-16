@@ -113,7 +113,6 @@
           <button class="button small icon-undo reset" aria-label="Reset TelePrompter" title="Reset TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Reset"></button>
           <button class="button small icon-text-width flip-x" aria-label="Flip Text Horizontally" title="Flip Text Horizontally" data-ga data-category="Nav" data-action="Control" data-label="FlipX"></button>
           <button class="button small icon-text-height flip-y" aria-label="Flip Text Vertically" title="Flip Text Vertically" data-ga data-category="Nav" data-action="Control" data-label="FlipY"></button>
-          <button id="play" class="button icon-play play active" aria-label="Play / Pause" title="Play / Pause TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Play"></button>
         </div>
         <div id="load-status" class="load-status" role="status" aria-live="polite"></div>
       </nav>
@@ -157,6 +156,10 @@
       </div>
       <i class="icon-play marker" style="display: none"></i>
     </article>
+
+    <!-- #play oculto: vive fuera del header pero el JS original lo sigue encontrando
+         con `$('.button.play')` y le togglea clases. El FAB dispara click programático. -->
+    <button id="play" class="button icon-play play active" aria-label="Play / Pause" title="Play / Pause TelePrompter" data-ga data-category="Nav" data-action="Control" data-label="Play" style="display:none" aria-hidden="true"></button>
 
     <!-- KazeCode FAB Play: boton flotante de accion primaria. Sincronizado con #play del header. -->
     <button id="kazecode-play-fab" class="kazecode-play-fab" aria-label="Play / Pause" title="Play / Pause TelePrompter" type="button">

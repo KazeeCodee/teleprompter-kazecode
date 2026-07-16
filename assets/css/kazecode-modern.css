@@ -738,3 +738,15 @@ a.sponsor-project:hover {
     font-size: 10px !important;
   }
 }
+
+/* #play: vive fuera del header (oculto). El kazecode-play-fab hace de Play visible. */
+#play {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
