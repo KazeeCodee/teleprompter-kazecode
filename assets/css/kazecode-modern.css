@@ -1,0 +1,376 @@
+/* ============================================================
+   KazeCode fork — Override layer (tema oscuro moderno)
+   Se carga DESPUÉS de style.v122.css. NO modifica estructura DOM.
+   NO toca position/display/width/height/top/left de .teleprompter,
+   <article>, <header> ni el font-size/padding del teleprompter
+   (el JS usa esos valores para calcular translate3d).
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Google Fonts — Inter (UI) + JetBrains Mono (clock/num)
+   ---------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ----------------------------------------------------------
+   Variables de paleta
+   ---------------------------------------------------------- */
+:root {
+  --kc-bg: #0a0e14;
+  --kc-surface: #131820;
+  --kc-elevated: #1c2230;
+  --kc-border: #232936;
+  --kc-text: #e8ecf1;
+  --kc-text-muted: #9ba3b4;
+  --kc-cyan: #06b6d4;
+  --kc-cyan-bright: #22d3ee;
+  --kc-cyan-dark: #0891b2;
+  --kc-green: #4caf50;
+  --kc-green-bright: #66bb6a;
+}
+
+/* ----------------------------------------------------------
+   Body / fondo global
+   ---------------------------------------------------------- */
+body,
+html {
+  background-color: var(--kc-bg) !important;
+  color: var(--kc-text) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif !important;
+}
+
+/* ----------------------------------------------------------
+   Header — solo color/fondo/border, NO tocar layout
+   ---------------------------------------------------------- */
+header {
+  background-color: var(--kc-surface) !important;
+  border-bottom: 1px solid var(--kc-border) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+header h1 {
+  color: var(--kc-text) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.3px !important;
+}
+
+header h1 i.icon-bullhorn {
+  color: var(--kc-cyan) !important;
+  margin-right: 4px;
+}
+
+header h1 .kc-by {
+  color: var(--kc-text-muted) !important;
+  font-weight: 500 !important;
+  letter-spacing: 1.2px !important;
+}
+
+header h1 span.clock {
+  font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--kc-cyan-bright) !important;
+  background-color: var(--kc-elevated) !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  margin-left: 12px !important;
+  border: 1px solid var(--kc-border) !important;
+  letter-spacing: 1px !important;
+  display: inline-block !important;
+  line-height: 1 !important;
+  vertical-align: middle;
+}
+
+/* ----------------------------------------------------------
+   Nav labels (Font / Speed)
+   ---------------------------------------------------------- */
+header nav label {
+  color: var(--kc-text-muted) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+}
+
+header nav label span {
+  color: var(--kc-cyan-bright) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 500 !important;
+}
+
+/* ----------------------------------------------------------
+   Color pickers — caja elevada
+   ---------------------------------------------------------- */
+.colors {
+  background-color: var(--kc-elevated) !important;
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 8px !important;
+  padding: 6px !important;
+  box-sizing: border-box !important;
+}
+
+input[type="color"] {
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 4px !important;
+  background-color: var(--kc-surface) !important;
+  cursor: pointer !important;
+  transition: border-color 0.15s ease !important;
+}
+
+input[type="color"]:hover {
+  border-color: var(--kc-cyan) !important;
+}
+
+/* ----------------------------------------------------------
+   Sliders — jQuery UI override
+   ---------------------------------------------------------- */
+.slider,
+.ui-slider {
+  background: linear-gradient(90deg, var(--kc-cyan) 0%, var(--kc-cyan-dark) 100%) !important;
+  border: none !important;
+  border-radius: 3px !important;
+  height: 4px !important;
+  margin: 0 4px !important;
+  position: relative !important;
+}
+
+.slider .ui-slider-handle,
+.ui-slider .ui-slider-handle {
+  background: var(--kc-cyan-bright) !important;
+  border: 2px solid var(--kc-bg) !important;
+  border-radius: 50% !important;
+  width: 14px !important;
+  height: 14px !important;
+  top: -5px !important;
+  cursor: grab !important;
+  box-shadow: 0 0 0 2px var(--kc-cyan), 0 2px 6px rgba(6, 182, 212, 0.4) !important;
+  transition: transform 0.15s ease !important;
+}
+
+.slider .ui-slider-handle:hover,
+.ui-slider .ui-slider-handle:hover {
+  transform: scale(1.2) !important;
+}
+
+.slider .ui-slider-handle:active,
+.ui-slider .ui-slider-handle:active {
+  cursor: grabbing !important;
+  transform: scale(1.1) !important;
+}
+
+.slider .ui-slider-range,
+.ui-slider .ui-slider-range {
+  background: transparent !important;
+}
+
+/* ----------------------------------------------------------
+   Botones de control del header
+   ---------------------------------------------------------- */
+.button {
+  color: var(--kc-text-muted) !important;
+  transition: color 0.15s ease, transform 0.15s ease !important;
+}
+
+.button:hover {
+  color: var(--kc-text) !important;
+}
+
+.button:active {
+  transform: scale(0.92) !important;
+}
+
+.button.active {
+  color: var(--kc-cyan) !important;
+}
+
+/* ----------------------------------------------------------
+   Botón Play — circular cyan prominente
+   Se preserva position/size del CSS original, solo se reeskinna
+   el fondo/border/sombra del círculo interior vía font-size ratio.
+   ---------------------------------------------------------- */
+.button.icon-play,
+.button.play {
+  background: linear-gradient(135deg, var(--kc-cyan) 0%, var(--kc-cyan-dark) 100%) !important;
+  color: #ffffff !important;
+  border-radius: 50% !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4), 0 0 0 0 rgba(6, 182, 212, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  animation: kc-play-pulse 2.4s ease-in-out infinite !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.button.icon-play:hover,
+.button.play:hover {
+  background: linear-gradient(135deg, var(--kc-cyan-bright) 0%, var(--kc-cyan) 100%) !important;
+  transform: scale(1.08) !important;
+  animation: none !important;
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.55), 0 0 0 6px rgba(6, 182, 212, 0.18) !important;
+}
+
+.button.icon-play:active,
+.button.play:active {
+  transform: scale(0.95) !important;
+  box-shadow: 0 2px 6px rgba(6, 182, 212, 0.5) !important;
+}
+
+@keyframes kc-play-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4), 0 0 0 0 rgba(6, 182, 212, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.55), 0 0 0 8px rgba(6, 182, 212, 0.15);
+  }
+}
+
+/* ----------------------------------------------------------
+   Article / .teleprompter — fondo oscuro
+   NO tocamos font-size/padding/max-width/line-height/transform
+   (JS los lee para calcular el scroll).
+   ---------------------------------------------------------- */
+article {
+  background-color: var(--kc-bg) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+article .teleprompter {
+  background-color: var(--kc-bg) !important;
+}
+
+article .teleprompter p {
+  color: var(--kc-text) !important;
+  border-bottom-color: var(--kc-border) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+article .teleprompter p:last-child {
+  border-bottom-color: var(--kc-cyan) !important;
+}
+
+/* ----------------------------------------------------------
+   Marker (icon-play del teleprompter)
+   ---------------------------------------------------------- */
+.marker {
+  color: var(--kc-cyan) !important;
+}
+
+/* ----------------------------------------------------------
+   Badge KC
+   ---------------------------------------------------------- */
+a#get-help {
+  background: var(--kc-cyan) !important;
+  color: #fff !important;
+}
+
+a#get-help:hover {
+  background: var(--kc-cyan-bright) !important;
+}
+
+/* ----------------------------------------------------------
+   Links del sponsor project dentro del guion
+   ---------------------------------------------------------- */
+a.sponsor-project {
+  color: var(--kc-cyan) !important;
+  border-bottom-color: var(--kc-cyan) !important;
+}
+
+a.sponsor-project:hover {
+  color: var(--kc-cyan-bright) !important;
+}
+
+/* ----------------------------------------------------------
+   Modal
+   ---------------------------------------------------------- */
+#software-update {
+  background: var(--kc-elevated) !important;
+  color: var(--kc-text) !important;
+  border: 1px solid var(--kc-border) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+#software-update h1 {
+  color: var(--kc-cyan-bright) !important;
+}
+
+#software-update p {
+  color: var(--kc-text-muted) !important;
+}
+
+#software-update a {
+  background: var(--kc-cyan) !important;
+  color: #fff !important;
+}
+
+#software-update a:hover {
+  background: var(--kc-cyan-bright) !important;
+}
+
+.remote-id,
+.remote-url {
+  color: var(--kc-cyan-bright) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.kc-remote-note {
+  color: var(--kc-text-muted) !important;
+}
+
+.close-modal {
+  color: var(--kc-text) !important;
+}
+
+#qr-code {
+  background: #fff !important;
+  border: 4px solid var(--kc-border) !important;
+}
+
+/* ----------------------------------------------------------
+   Drag-over highlight (mantener consistencia)
+   ---------------------------------------------------------- */
+.teleprompter.drag-over {
+  outline-color: var(--kc-cyan) !important;
+  background-color: rgba(6, 182, 212, 0.06) !important;
+}
+
+/* ----------------------------------------------------------
+   Mobile (<768px): ocultar sliders/colores, header compacto
+   ---------------------------------------------------------- */
+@media (max-width: 768px) {
+  .sliders,
+  .colors {
+    display: none !important;
+  }
+
+  .button {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .button.small {
+    width: 30px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+
+  header h1 {
+    font-size: 16px !important;
+    text-indent: 50px !important;
+  }
+
+  header h1 .kc-by {
+    font-size: 10px !important;
+    display: inline-block !important;
+  }
+
+  header h1 span.clock {
+    font-size: 11px !important;
+    padding: 3px 7px !important;
+  }
+}
+
+/* Very small phones (<375px) */
+@media (max-width: 374px) {
+  header h1 .kc-by {
+    display: none !important;
+  }
+}
