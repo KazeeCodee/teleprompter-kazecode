@@ -66,16 +66,31 @@
       <a class="button icon-remove-circle close-modal" href="javascript:void(0)" role="button" aria-label="Close Modal" title="Close Modal" data-ga data-category="Nav" data-action="Modal" data-label="Close Modal"></a>
 
       <div class="modal-content">
-        <!-- Remote Control -->
+        <!-- Remote Control (PeerJS / WebRTC P2P) -->
         <div id="remote-control-modal">
           <h1>Control Remoto</h1>
-          <p>Abrí esta misma URL en otro dispositivo (celular, tablet) conectado a la misma red:</p>
-          <p class="remote-url"></p>
-          <p>O usá este Remote ID:</p>
-          <p class="remote-id"></p>
-          <div id="qr-code"></div>
-          <p>Código QR del Control Remoto</p>
-          <p class="kc-remote-note">Tip: si abrís dos pestañas del mismo navegador, se sincronizan automáticamente sin necesidad de ID.</p>
+
+          <div id="kc-remote-status" class="kc-remote-status kc-remote-status--waiting">
+            <span class="kc-remote-dot"></span>
+            <span class="kc-remote-status-text">Generando ID...</span>
+          </div>
+
+          <p class="kc-remote-instructions">Escaneá el QR desde otro dispositivo (celular, tablet) o abrí la URL manualmente:</p>
+
+          <div class="kc-remote-url-row">
+            <code class="remote-url" id="kc-remote-url"></code>
+            <button type="button" id="kc-remote-copy-btn" class="kc-remote-copy-btn" aria-label="Copiar URL" title="Copiar URL">
+              <i class="icon-copy"></i> Copiar
+            </button>
+          </div>
+
+          <p class="kc-remote-peer-label">O usá este Peer ID directamente:</p>
+          <p class="remote-id" id="kc-remote-peer-id"></p>
+
+          <div id="qr-code" class="kc-qr-code"></div>
+          <p class="kc-remote-qr-caption">Código QR del Control Remoto</p>
+
+          <p class="kc-remote-note">Funciona vía WebRTC P2P (sin servidor propio). El remote puede manejar play, font, speed y texto del guion.</p>
         </div>
 
         <!-- Software Update -->
@@ -165,6 +180,54 @@
     <button id="kazecode-play-fab" class="kazecode-play-fab" aria-label="Play / Pause" title="Play / Pause TelePrompter" type="button">
       <i class="icon-play" aria-hidden="true"></i>
     </button>
+
+    <!-- KazeCode · Panel de control remoto (visible solo cuando ?remote=<id> en URL) -->
+    <div id="kc-remote-panel" class="kc-remote-panel" style="display:none" aria-hidden="true">
+      <header class="kc-remote-header">
+        <div class="kc-remote-title">
+          <span class="kc-remote-title-label">Control Remoto</span>
+          <span class="kc-remote-host-id" id="kc-remote-host-display"></span>
+        </div>
+        <div id="kc-remote-conn-status" class="kc-remote-conn-status kc-remote-conn-status--waiting">
+          <span class="kc-remote-conn-dot"></span>
+          <span class="kc-remote-conn-text">Conectando...</span>
+        </div>
+      </header>
+
+      <div class="kc-remote-body">
+        <button type="button" id="kc-remote-play" class="kc-remote-play-btn" aria-label="Play / Pause">
+          <i class="icon-play" aria-hidden="true"></i>
+        </button>
+
+        <div class="kc-remote-controls">
+          <div class="kc-remote-control-row">
+            <label class="kc-remote-control-label" for="kc-remote-font">
+              Font <span id="kc-remote-font-label" class="kc-remote-control-value">60</span>
+            </label>
+            <input type="range" id="kc-remote-font" class="kc-remote-slider" min="20" max="200" value="60" step="1">
+          </div>
+
+          <div class="kc-remote-control-row">
+            <label class="kc-remote-control-label" for="kc-remote-speed">
+              Speed <span id="kc-remote-speed-label" class="kc-remote-control-value">35</span>
+            </label>
+            <input type="range" id="kc-remote-speed" class="kc-remote-slider" min="1" max="100" value="35" step="1">
+          </div>
+
+          <div class="kc-remote-button-row">
+            <button type="button" id="kc-remote-reset" class="kc-remote-secondary-btn">Reset</button>
+            <button type="button" id="kc-remote-flipx" class="kc-remote-secondary-btn">Flip X</button>
+            <button type="button" id="kc-remote-flipy" class="kc-remote-secondary-btn">Flip Y</button>
+          </div>
+
+          <div class="kc-remote-text-row">
+            <label class="kc-remote-control-label" for="kc-remote-text">Enviar guion al host</label>
+            <textarea id="kc-remote-text" class="kc-remote-textarea" rows="4" placeholder="Pegá o escribí un guion y enviá al host..."></textarea>
+            <button type="button" id="kc-remote-send-text" class="kc-remote-send-btn">Enviar guion</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
       // KazeCode · sincroniza el FAB Play con el boton Play del header.
@@ -439,6 +502,396 @@
       window.onload = function() {
         TelePrompter.init();
       };
+    </script>
+
+    <!-- PeerJS · WebRTC P2P para control remoto sin servidor propio -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+    <script>
+      /**
+       * KazeCode TelePrompter · Control remoto PeerJS (WebRTC P2P)
+       * - Reemplaza el control remoto socket.io roto por WebRTC P2P.
+       * - Funciona deployado en Netlify sin servidor propio (usa signaling
+       *   público de PeerJS solo para el handshake inicial).
+       * - Si esta pestaña tiene ?remote=<id>, actúa como REMOTE.
+       * - Si no, actúa como HOST del teleprompter.
+       * - Intercepta click en button.remote en fase de captura para
+       *   ganarle al handler viejo (script.v122.js → handleRemote).
+       */
+      (function() {
+        'use strict';
+
+        if (typeof Peer === 'undefined') {
+          console.warn('[KazeCode] PeerJS no cargo. Control remoto P2P no disponible.');
+          return;
+        }
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var remoteParam = urlParams.get('remote');
+        var isRemoteControl = !!remoteParam;
+
+        var peer = null;
+        var conn = null;
+        var myPeerId = null;
+
+        function $(sel) { return document.querySelector(sel); }
+
+        // ============================================================
+        // MODO REMOTE: ?remote=<id> en URL → este tab es el control remoto
+        // ============================================================
+        if (isRemoteControl) {
+          // Esconder UI del host
+          document.body.classList.add('kc-remote-mode');
+          var header = document.querySelector('header');
+          var article = document.querySelector('article');
+          var fab = document.getElementById('kazecode-play-fab');
+          var getHelp = document.getElementById('get-help');
+          var modal = document.getElementById('modal');
+          if (header) header.style.display = 'none';
+          if (article) article.style.display = 'none';
+          if (fab) fab.style.display = 'none';
+          if (getHelp) getHelp.style.display = 'none';
+          if (modal) modal.style.display = 'none';
+
+          // Mostrar panel remoto
+          var panel = document.getElementById('kc-remote-panel');
+          var hostDisplay = document.getElementById('kc-remote-host-display');
+          if (panel) {
+            panel.style.display = 'flex';
+            panel.setAttribute('aria-hidden', 'false');
+          }
+          if (hostDisplay) hostDisplay.textContent = remoteParam;
+
+          function setRemoteConnState(state, text) {
+            var el = document.getElementById('kc-remote-conn-status');
+            if (!el) return;
+            el.className = 'kc-remote-conn-status kc-remote-conn-status--' + state;
+            var txt = el.querySelector('.kc-remote-conn-text');
+            if (txt) txt.textContent = text;
+          }
+
+          // Conectar al host via PeerJS
+          peer = new Peer();
+          peer.on('open', function() {
+            conn = peer.connect(remoteParam, { reliable: true });
+            conn.on('open', function() {
+              setRemoteConnState('connected', 'Conectado al host');
+            });
+            conn.on('data', function(data) {
+              if (data && data.type === 'sync') {
+                // Sincronizar UI con estado del host
+                var fontSlider = document.getElementById('kc-remote-font');
+                var fontLabel = document.getElementById('kc-remote-font-label');
+                var speedSlider = document.getElementById('kc-remote-speed');
+                var speedLabel = document.getElementById('kc-remote-speed-label');
+                var textArea = document.getElementById('kc-remote-text');
+                var playBtn = document.getElementById('kc-remote-play');
+
+                if (fontSlider && data.fontSize !== undefined) {
+                  fontSlider.value = data.fontSize;
+                  if (fontLabel) fontLabel.textContent = data.fontSize;
+                }
+                if (speedSlider && data.speed !== undefined) {
+                  speedSlider.value = data.speed;
+                  if (speedLabel) speedLabel.textContent = data.speed;
+                }
+                if (textArea && data.text !== undefined) {
+                  textArea.value = data.text;
+                }
+                if (playBtn) {
+                  if (data.playing) playBtn.classList.add('is-playing');
+                  else playBtn.classList.remove('is-playing');
+                }
+              }
+            });
+            conn.on('close', function() {
+              setRemoteConnState('disconnected', 'Desconectado del host');
+              conn = null;
+            });
+            conn.on('error', function(err) {
+              console.error('[KazeCode] conn error', err);
+            });
+          });
+          peer.on('error', function(err) {
+            console.error('[KazeCode] peer error', err);
+            var msg = 'Error';
+            if (err && err.type === 'peer-unavailable') {
+              msg = 'Host no disponible. Verificá el ID.';
+            } else if (err && err.type === 'network') {
+              msg = 'Sin conexión al servidor de signaling';
+            } else if (err && err.type) {
+              msg = 'Error: ' + err.type;
+            }
+            setRemoteConnState('error', msg);
+          });
+
+          // Wire up botones del remote
+          function send(cmd) {
+            if (conn && conn.open) conn.send(cmd);
+          }
+          var playBtn = document.getElementById('kc-remote-play');
+          if (playBtn) {
+            playBtn.addEventListener('click', function() {
+              send({ type: 'play' });
+              // Feedback optimista local
+              playBtn.classList.toggle('is-playing');
+            });
+          }
+          var fontSlider = document.getElementById('kc-remote-font');
+          if (fontSlider) {
+            fontSlider.addEventListener('input', function() {
+              var v = parseInt(fontSlider.value, 10);
+              var lbl = document.getElementById('kc-remote-font-label');
+              if (lbl) lbl.textContent = v;
+              send({ type: 'font', value: v });
+            });
+          }
+          var speedSlider = document.getElementById('kc-remote-speed');
+          if (speedSlider) {
+            speedSlider.addEventListener('input', function() {
+              var v = parseInt(speedSlider.value, 10);
+              var lbl = document.getElementById('kc-remote-speed-label');
+              if (lbl) lbl.textContent = v;
+              send({ type: 'speed', value: v });
+            });
+          }
+          var resetBtn = document.getElementById('kc-remote-reset');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', function() { send({ type: 'reset' }); });
+          }
+          var flipxBtn = document.getElementById('kc-remote-flipx');
+          if (flipxBtn) {
+            flipxBtn.addEventListener('click', function() { send({ type: 'flipx' }); });
+          }
+          var flipyBtn = document.getElementById('kc-remote-flipy');
+          if (flipyBtn) {
+            flipyBtn.addEventListener('click', function() { send({ type: 'flipy' }); });
+          }
+          var sendTextBtn = document.getElementById('kc-remote-send-text');
+          var textArea = document.getElementById('kc-remote-text');
+          if (sendTextBtn && textArea) {
+            sendTextBtn.addEventListener('click', function() {
+              send({ type: 'text', value: textArea.value });
+              var orig = sendTextBtn.textContent;
+              sendTextBtn.textContent = 'Enviado ✓';
+              setTimeout(function() { sendTextBtn.textContent = orig; }, 1500);
+            });
+          }
+          return;
+        }
+
+        // ============================================================
+        // MODO HOST: este tab es el teleprompter principal
+        // ============================================================
+
+        function setHostConnState(state, text) {
+          var el = document.getElementById('kc-remote-status');
+          if (!el) return;
+          el.className = 'kc-remote-status kc-remote-status--' + state;
+          var txt = el.querySelector('.kc-remote-status-text');
+          if (txt) txt.textContent = text;
+        }
+
+        function updateHostQR(id) {
+          var idEl = document.getElementById('kc-remote-peer-id');
+          var urlEl = document.getElementById('kc-remote-url');
+          var qrEl = document.getElementById('qr-code');
+          if (!id) return;
+          var remoteUrl = window.location.origin + window.location.pathname + '?remote=' + encodeURIComponent(id);
+          if (idEl) idEl.textContent = id;
+          if (urlEl) urlEl.textContent = remoteUrl;
+          if (qrEl) {
+            var qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=' + encodeURIComponent(remoteUrl);
+            qrEl.innerHTML = '<img src="' + qrSrc + '" alt="QR Control Remoto" class="kc-qr-img" />';
+          }
+        }
+
+        // Inicializar PeerJS host (genera ID aleatorio)
+        peer = new Peer();
+        peer.on('open', function(id) {
+          myPeerId = id;
+          console.log('[KazeCode] PeerJS host ready:', id);
+          updateHostQR(id);
+          setHostConnState('waiting', 'Escaneá el QR desde otro dispositivo');
+        });
+        peer.on('error', function(err) {
+          console.error('[KazeCode] PeerJS error:', err);
+          var msg = 'Error';
+          if (err && err.type === 'network') {
+            msg = 'Sin conexión al servidor de signaling';
+          } else if (err && err.type === 'server-error') {
+            msg = 'Servidor de signaling no disponible';
+          } else if (err && err.type) {
+            msg = 'Error: ' + err.type;
+          }
+          setHostConnState('error', msg);
+        });
+
+        peer.on('connection', function(connection) {
+          conn = connection;
+          conn.on('open', function() {
+            console.log('[KazeCode] Remote connected');
+            // Enviar estado actual al remote
+            sendHostState();
+            setHostConnState('connected', 'Conectado · control remoto activo');
+          });
+          conn.on('data', function(data) {
+            try { handleRemoteCommand(data); }
+            catch (e) { console.error('[KazeCode] command error', e); }
+          });
+          conn.on('close', function() {
+            console.log('[KazeCode] Remote disconnected');
+            setHostConnState('waiting', 'Desconectado · escaneá el QR para reconectar');
+            conn = null;
+          });
+          conn.on('error', function(err) {
+            console.error('[KazeCode] conn error', err);
+          });
+        });
+
+        function sendHostState() {
+          if (!conn || !conn.open) return;
+          var teleprompter = document.getElementById('teleprompter');
+          var fontSlider = document.getElementById('font');
+          var speedSlider = document.getElementById('speed');
+          var playBtn = document.getElementById('play');
+          var fontVal = 60;
+          var speedVal = 35;
+          // Intentar leer valores de jQuery UI sliders si están inicializados
+          try {
+            if (window.jQuery && window.jQuery.fn && window.jQuery('.font_size').data('ui-slider')) {
+              fontVal = window.jQuery('.font_size').slider('value');
+              speedVal = window.jQuery('.speed').slider('value');
+            } else if (fontSlider) {
+              fontVal = parseInt(fontSlider.value, 10) || 60;
+              speedVal = parseInt(speedSlider.value, 10) || 35;
+            }
+          } catch (e) { /* usar defaults */ }
+          conn.send({
+            type: 'sync',
+            text: teleprompter ? teleprompter.innerText : '',
+            fontSize: fontVal,
+            speed: speedVal,
+            playing: playBtn ? playBtn.classList.contains('icon-pause') : false
+          });
+        }
+
+        function handleRemoteCommand(cmd) {
+          if (!cmd || !cmd.type) return;
+          var $ = window.jQuery;
+          if (cmd.type === 'play') {
+            var playBtn = document.getElementById('play');
+            if (playBtn) playBtn.click();
+          } else if (cmd.type === 'font') {
+            var val = parseInt(cmd.value, 10);
+            if (!isNaN(val)) {
+              if ($ && $.fn && $('.font_size').data('ui-slider')) {
+                $('.font_size').slider('value', val);
+              } else {
+                var fontSlider = document.getElementById('font');
+                if (fontSlider) {
+                  fontSlider.value = val;
+                  fontSlider.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }
+            }
+          } else if (cmd.type === 'speed') {
+            var val2 = parseInt(cmd.value, 10);
+            if (!isNaN(val2)) {
+              if ($ && $.fn && $('.speed').data('ui-slider')) {
+                $('.speed').slider('value', val2);
+              } else {
+                var speedSlider = document.getElementById('speed');
+                if (speedSlider) {
+                  speedSlider.value = val2;
+                  speedSlider.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }
+            }
+          } else if (cmd.type === 'text') {
+            var teleprompter = document.getElementById('teleprompter');
+            if (teleprompter && typeof cmd.value === 'string') {
+              teleprompter.innerText = cmd.value;
+              try {
+                teleprompter.dispatchEvent(new Event('input', { bubbles: true }));
+                teleprompter.dispatchEvent(new Event('keyup', { bubbles: true }));
+              } catch (e) { /* noop */ }
+            }
+          } else if (cmd.type === 'reset') {
+            var resetBtn = document.querySelector('button.reset');
+            if (resetBtn) resetBtn.click();
+          } else if (cmd.type === 'flipx') {
+            var flipxBtn = document.querySelector('button.flip-x');
+            if (flipxBtn) flipxBtn.click();
+          } else if (cmd.type === 'flipy') {
+            var flipyBtn = document.querySelector('button.flip-y');
+            if (flipyBtn) flipyBtn.click();
+          }
+          // Reenviar estado al remote después de cada comando
+          setTimeout(sendHostState, 100);
+        }
+
+        // Interceptar click en button.remote (fase captura, antes del handler viejo)
+        var remoteBtn = document.querySelector('button.remote');
+        if (remoteBtn) {
+          remoteBtn.addEventListener('click', function(e) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            // Mostrar nuestro modal con QR
+            var modal = document.getElementById('modal');
+            var remoteModal = document.getElementById('remote-control-modal');
+            var updateModal = document.getElementById('software-update');
+            if (updateModal) updateModal.style.display = 'none';
+            if (remoteModal) remoteModal.style.display = 'block';
+            if (modal) modal.style.display = 'flex';
+            // Si ya tenemos peer ID, actualizar (por si abrió modal antes de ready)
+            if (myPeerId) updateHostQR(myPeerId);
+          }, true);
+        }
+
+        // Botón copiar URL
+        var copyBtn = document.getElementById('kc-remote-copy-btn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', function() {
+            var urlEl = document.getElementById('kc-remote-url');
+            if (!urlEl) return;
+            var url = urlEl.textContent;
+            var origText = copyBtn.innerHTML;
+            function flash(msg, ok) {
+              copyBtn.textContent = msg;
+              copyBtn.classList.toggle('kc-remote-copy-btn--ok', !!ok);
+              setTimeout(function() {
+                copyBtn.innerHTML = origText;
+                copyBtn.classList.remove('kc-remote-copy-btn--ok');
+              }, 1500);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(url).then(
+                function() { flash('¡Copiado!', true); },
+                function() { fallbackCopy(url, flash); }
+              );
+            } else {
+              fallbackCopy(url, flash);
+            }
+          });
+        }
+
+        function fallbackCopy(text, cb) {
+          try {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            cb('¡Copiado!', true);
+          } catch (e) {
+            cb('Error al copiar', false);
+          }
+        }
+      })();
     </script>
   </body>
 </html>

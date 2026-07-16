@@ -790,3 +790,572 @@ a.sponsor-project:hover {
   height: 0 !important;
   pointer-events: none !important;
 }
+
+/* ============================================================
+   KazeCode · Control Remoto PeerJS / WebRTC P2P
+   - Modal: QR + URL + peer ID + indicador de estado
+   - Panel remoto (?remote=<id>): UI full-screen en el otro device
+   ============================================================ */
+
+/* --- Modal: status indicator --- */
+.kc-remote-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  margin: 0 0 20px 0 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border: 1px solid transparent !important;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+.kc-remote-status .kc-remote-dot {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  background: currentColor !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08) !important;
+}
+
+.kc-remote-status--waiting {
+  background: rgba(251, 191, 36, 0.08) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+.kc-remote-status--waiting .kc-remote-dot {
+  animation: kc-status-pulse 1.5s ease-in-out infinite !important;
+}
+
+.kc-remote-status--connected {
+  background: rgba(74, 222, 128, 0.08) !important;
+  border-color: rgba(74, 222, 128, 0.4) !important;
+  color: #4ade80 !important;
+}
+
+.kc-remote-status--error {
+  background: rgba(248, 113, 113, 0.08) !important;
+  border-color: rgba(248, 113, 113, 0.4) !important;
+  color: #f87171 !important;
+}
+
+.kc-remote-status--disconnected {
+  background: rgba(248, 113, 113, 0.08) !important;
+  border-color: rgba(248, 113, 113, 0.4) !important;
+  color: #f87171 !important;
+}
+
+@keyframes kc-status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* --- Modal: instrucciones + URL row --- */
+.kc-remote-instructions {
+  color: var(--kc-text-muted) !important;
+  font-size: 14px !important;
+  margin: 0 0 12px 0 !important;
+}
+
+.kc-remote-url-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 0 20px 0 !important;
+}
+
+#kc-remote-url.remote-url {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding: 10px 12px !important;
+  background: var(--kc-bg) !important;
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  color: var(--kc-cyan-bright) !important;
+  word-break: break-all !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+.kc-remote-copy-btn {
+  flex: 0 0 auto !important;
+  padding: 10px 14px !important;
+  background: var(--kc-cyan) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, transform 0.15s ease !important;
+  white-space: nowrap !important;
+}
+
+.kc-remote-copy-btn:hover {
+  background: var(--kc-cyan-bright) !important;
+}
+
+.kc-remote-copy-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.kc-remote-copy-btn--ok {
+  background: var(--kc-green) !important;
+}
+
+.kc-remote-peer-label {
+  color: var(--kc-text-muted) !important;
+  font-size: 13px !important;
+  margin: 0 0 6px 0 !important;
+}
+
+#kc-remote-peer-id.remote-id {
+  padding: 8px 12px !important;
+  background: var(--kc-elevated) !important;
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  color: var(--kc-cyan-bright) !important;
+  margin: 0 0 20px 0 !important;
+  text-align: center !important;
+  user-select: all !important;
+}
+
+/* --- Modal: QR --- */
+#qr-code.kc-qr-code {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 250px !important;
+  height: 250px !important;
+  margin: 0 auto 12px auto !important;
+  padding: 12px !important;
+  background: #fff !important;
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  overflow: hidden !important;
+}
+
+#qr-code .kc-qr-img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+.kc-remote-qr-caption {
+  text-align: center !important;
+  color: var(--kc-text-muted) !important;
+  font-size: 12px !important;
+  margin: 0 0 16px 0 !important;
+}
+
+#remote-control-modal .kc-remote-note {
+  color: var(--kc-text-muted) !important;
+  font-size: 12px !important;
+  font-style: italic !important;
+  text-align: center !important;
+  margin: 12px 0 0 0 !important;
+}
+
+/* ============================================================
+   Panel de control remoto (cuando ?remote=<id> en URL)
+   Full-screen, optimizado para uso con una mano en celular
+   ============================================================ */
+#kc-remote-panel {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  background: var(--kc-bg) !important;
+  display: none !important;
+  flex-direction: column !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  color: var(--kc-text) !important;
+  z-index: 10000 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
+  box-sizing: border-box !important;
+}
+
+body.kc-remote-mode #kc-remote-panel {
+  display: flex !important;
+}
+
+.kc-remote-header {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 20px !important;
+  background: var(--kc-surface) !important;
+  border-bottom: 1px solid var(--kc-border) !important;
+  gap: 12px !important;
+}
+
+.kc-remote-title {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.kc-remote-title-label {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--kc-text) !important;
+  letter-spacing: -0.2px !important;
+}
+
+.kc-remote-host-id {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: var(--kc-text-muted) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.kc-remote-conn-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  flex: 0 0 auto !important;
+  border: 1px solid transparent !important;
+}
+
+.kc-remote-conn-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  flex-shrink: 0 !important;
+}
+
+.kc-remote-conn-status--waiting {
+  background: rgba(251, 191, 36, 0.08) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+.kc-remote-conn-status--waiting .kc-remote-conn-dot {
+  animation: kc-status-pulse 1.5s ease-in-out infinite !important;
+}
+
+.kc-remote-conn-status--connected {
+  background: rgba(74, 222, 128, 0.08) !important;
+  border-color: rgba(74, 222, 128, 0.4) !important;
+  color: #4ade80 !important;
+}
+
+.kc-remote-conn-status--disconnected {
+  background: rgba(248, 113, 113, 0.08) !important;
+  border-color: rgba(248, 113, 113, 0.4) !important;
+  color: #f87171 !important;
+}
+
+.kc-remote-conn-status--error {
+  background: rgba(248, 113, 113, 0.08) !important;
+  border-color: rgba(248, 113, 113, 0.4) !important;
+  color: #f87171 !important;
+}
+
+/* --- Remote body --- */
+.kc-remote-body {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 20px 16px !important;
+  gap: 24px !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Play button grande */
+.kc-remote-play-btn {
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: linear-gradient(135deg, var(--kc-cyan) 0%, var(--kc-cyan-dark) 100%) !important;
+  color: #fff !important;
+  font-size: 48px !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.45), 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  font-family: 'FontAwesome', sans-serif !important;
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+}
+
+.kc-remote-play-btn:hover {
+  background: linear-gradient(135deg, var(--kc-cyan-bright) 0%, var(--kc-cyan) 100%) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.kc-remote-play-btn:active {
+  transform: scale(0.96) !important;
+}
+
+.kc-remote-play-btn.is-playing {
+  background: linear-gradient(135deg, var(--kc-cyan-dark) 0%, var(--kc-cyan) 100%) !important;
+}
+
+.kc-remote-play-btn i {
+  display: block !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+}
+
+/* Controls container */
+.kc-remote-controls {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+}
+
+.kc-remote-control-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  background: var(--kc-surface) !important;
+  padding: 14px 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--kc-border) !important;
+}
+
+.kc-remote-control-label {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: baseline !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--kc-text-muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+}
+
+.kc-remote-control-value {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: var(--kc-cyan-bright) !important;
+  text-transform: none !important;
+}
+
+.kc-remote-slider {
+  width: 100% !important;
+  height: 4px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: linear-gradient(90deg, var(--kc-cyan) 0%, var(--kc-cyan-dark) 100%) !important;
+  border-radius: 3px !important;
+  outline: none !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.kc-remote-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: var(--kc-cyan-bright) !important;
+  border: 2px solid var(--kc-bg) !important;
+  cursor: grab !important;
+  box-shadow: 0 0 0 2px var(--kc-cyan), 0 2px 6px rgba(6, 182, 212, 0.4) !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.kc-remote-slider::-moz-range-thumb {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: var(--kc-cyan-bright) !important;
+  border: 2px solid var(--kc-bg) !important;
+  cursor: grab !important;
+  box-shadow: 0 0 0 2px var(--kc-cyan), 0 2px 6px rgba(6, 182, 212, 0.4) !important;
+}
+
+.kc-remote-slider::-webkit-slider-thumb:active {
+  cursor: grabbing !important;
+  transform: scale(1.1) !important;
+}
+
+.kc-remote-button-row {
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: stretch !important;
+}
+
+.kc-remote-secondary-btn {
+  flex: 1 1 0 !important;
+  padding: 10px 8px !important;
+  background: var(--kc-elevated) !important;
+  color: var(--kc-text) !important;
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+}
+
+.kc-remote-secondary-btn:hover {
+  background: var(--kc-surface) !important;
+  border-color: var(--kc-cyan) !important;
+}
+
+.kc-remote-secondary-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.kc-remote-text-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  background: var(--kc-surface) !important;
+  padding: 14px 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--kc-border) !important;
+}
+
+.kc-remote-textarea {
+  width: 100% !important;
+  min-height: 80px !important;
+  padding: 10px 12px !important;
+  background: var(--kc-bg) !important;
+  color: var(--kc-text) !important;
+  border: 1px solid var(--kc-border) !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  resize: vertical !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.kc-remote-textarea:focus {
+  border-color: var(--kc-cyan) !important;
+}
+
+.kc-remote-send-btn {
+  padding: 10px 16px !important;
+  background: var(--kc-cyan) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, transform 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+}
+
+.kc-remote-send-btn:hover {
+  background: var(--kc-cyan-bright) !important;
+}
+
+.kc-remote-send-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* --- Mobile: panel remoto small phones --- */
+@media (max-width: 480px) {
+  .kc-remote-header {
+    padding: 12px 14px !important;
+  }
+
+  .kc-remote-body {
+    padding: 16px 12px !important;
+    gap: 18px !important;
+  }
+
+  .kc-remote-play-btn {
+    width: 100px !important;
+    height: 100px !important;
+    font-size: 40px !important;
+  }
+
+  .kc-remote-control-row,
+  .kc-remote-text-row {
+    padding: 12px 14px !important;
+  }
+
+  .kc-remote-control-label {
+    font-size: 11px !important;
+  }
+
+  .kc-remote-control-value {
+    font-size: 14px !important;
+  }
+}
+
+/* --- Ultra-small phones: ≤360px --- */
+@media (max-width: 360px) {
+  .kc-remote-title-label {
+    font-size: 14px !important;
+  }
+
+  .kc-remote-play-btn {
+    width: 88px !important;
+    height: 88px !important;
+    font-size: 36px !important;
+  }
+
+  .kc-remote-secondary-btn {
+    font-size: 12px !important;
+    padding: 8px 6px !important;
+  }
+}
+
+/* --- Modal responsive: QR más chico en mobile --- */
+@media (max-width: 480px) {
+  #qr-code.kc-qr-code {
+    width: 200px !important;
+    height: 200px !important;
+  }
+
+  .kc-remote-url-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .kc-remote-copy-btn {
+    width: 100% !important;
+  }
+}
