@@ -1359,3 +1359,74 @@ body.kc-remote-mode #kc-remote-panel {
     width: 100% !important;
   }
 }
+
+/* ----------------------------------------------------------
+   Marker overlay (rectángulo de lectura) durante play con dim
+   - Banda horizontal centrada donde pasa el texto a leer
+   - Borde cyan sutil para que se vea como zona intencional
+   - display:none por default; JS original lo muestra con fadeIn
+---------------------------------------------------------- */
+.overlay {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 120px !important;
+  background: transparent !important;
+  border-top: 2px solid rgba(66, 151, 215, 0.45) !important;
+  border-bottom: 2px solid rgba(66, 151, 215, 0.45) !important;
+  z-index: 5 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    height: 140px !important;
+  }
+}
+
+/* ----------------------------------------------------------
+   Fix bug: ventana limpia header durante play
+   - El header se oculta pero la franja top 0-64px queda limpia
+   - Solución: overlay oscuro full-screen durante play, atenuado
+   - z-index bajo (4) para que el overlay (.overlay) quede encima
+---------------------------------------------------------- */
+body.playing::before {
+  content: "";
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+  animation: kc-dim-fade-in 0.4s ease forwards !important;
+}
+
+@keyframes kc-dim-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Al pausar, fade-out del dim */
+body:not(.playing)::before {
+  animation: kc-dim-fade-out 0.3s ease forwards !important;
+}
+
+@keyframes kc-dim-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* El FAB Play debe quedar por encima del dim */
+body.playing .kazecode-play-fab {
+  z-index: 100 !important;
+}
+
+/* El KC badge también por encima del dim */
+body.playing a#get-help {
+  z-index: 100 !important;
+}
